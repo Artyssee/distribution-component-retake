@@ -1,0 +1,18 @@
+{
+  "extends": "./tsconfig.app.json",
+  "include": [
+    "env.d.ts",
+    "src/**/*",
+    "src/**/*.vue",
+    "src/**/**/*.vue",
+    "src/**/**/InventorySystem.vue",
+    "package.json",
+    "src/**/*.json",
+    "cypress/support/component.*",
+    "cypress/support/commands.ts"
+  ],
+  "exclude": [],
+  "compilerOptions": {
+    "composite": true
+  }
+}

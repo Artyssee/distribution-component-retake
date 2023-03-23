@@ -1,0 +1,21 @@
+// Responsiveness
+@import './breakpoints.scss';
+
+// Colors
+@import './colors.scss';
+
+// Fonts
+@import './fonts.scss';
+
+html {
+  background-color: $primary-white;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6, p {
+  color: $primary-black;
+}

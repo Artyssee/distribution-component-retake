@@ -1,0 +1,45 @@
+$breakpoints: (
+  sm: 576px,
+  md: 768px,
+  lg: 992px,
+  xl: 1200px,
+  xxl: 1400px
+);
+
+@mixin breakpoint($point) {
+  @if ($point == 'sm') {
+    @media only screen and (min-width: 576px) {
+      @content;
+    }
+  }
+
+  @if ($point == 'md') {
+    @media only screen and (min-width: 768px) {
+      @content;
+    }
+  }
+
+  @if ($point == 'lg') {
+    @media only screen and (min-width: 992px) {
+      @content;
+    }
+  }
+
+  @if ($point == 'xl') {
+    @media only screen and (min-width: 1200px) {
+      @content;
+    }
+  }
+
+  @if ($point == 'xxl') {
+    @media only screen and (min-width: 1400px) {
+      @content;
+    }
+  }
+
+  @if ($point == 'xxxl') {
+    @media only screen and (min-width: 1440px) {
+      @content;
+    }
+  }
+}

@@ -1,0 +1,70 @@
+[
+  {
+    "id": 0,
+    "productName": "product1",
+    "segments": [
+      {
+        "date": "2023-03-16",
+        "quantity": 39
+      },
+      {
+        "date": "2023-03-17",
+        "quantity": 10
+      },
+      {
+        "date": "2023-03-18",
+        "quantity": 0
+      },
+      {
+        "date": "2023-03-19",
+        "quantity": 31
+      },
+      {
+        "date": "2023-03-20",
+        "quantity": 9
+      },
+      {
+        "date": "2023-03-21",
+        "quantity": 500
+      },
+      {
+        "date": "2023-03-22",
+        "quantity": 74
+      }
+    ]
+  },
+  {
+    "id": 1,
+    "productName": "product2",
+    "segments": [
+      {
+        "date": "2023-03-16",
+        "quantity": 39
+      },
+      {
+        "date": "2023-03-17",
+        "quantity": 10
+      },
+      {
+        "date": "2023-03-18",
+        "quantity": 0
+      },
+      {
+        "date": "2023-03-19",
+        "quantity": 31
+      },
+      {
+        "date": "2023-03-20",
+        "quantity": 9
+      },
+      {
+        "date": "2023-03-21",
+        "quantity": 500
+      },
+      {
+        "date": "2023-03-22",
+        "quantity": 74
+      }
+    ]
+  }
+]
