@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import inventorySystem from '@/components/organisms/InventorySystem.vue';
+import inventorySystem from '@/components/organisms/InventorySystem.vue'
+import inventory from '@/data/inventory.json'
 
 export interface Props {
   // Passing it via router makes it a string
@@ -7,8 +8,18 @@ export interface Props {
 }
 
 const props = defineProps<Props>()
+// let currentInventory = inventory
+
+// const restockProducts = () => {
+//   currentInventory = inventory
+// }
 </script>
 
 <template>
-    <inventorySystem :product-id="props.id" />
+  <main>
+      <inventorySystem
+      :inventory="inventory"
+      :product-id="props.id"
+    />
+  </main>
 </template>
