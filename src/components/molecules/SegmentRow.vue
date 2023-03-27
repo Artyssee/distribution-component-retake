@@ -5,7 +5,7 @@ export interface Props {
 }
 
 import type { ISegment } from '@/scripts/interfaces'
-import { onBeforeMount, onMounted } from 'vue'
+import { onBeforeMount, onMounted, onUpdated, ref, type Ref } from 'vue'
 import SegmentView from '../atoms/SegmentView.vue'
 
 const props = defineProps<Props>()
@@ -13,28 +13,36 @@ const props = defineProps<Props>()
 /**
  * Variables for generating colored sections.
  * The onBeforeMount function will loop over the colors infinitely
-**/
+ **/
 const segmentColors = ['primary', 'secondary', 'tertiary', 'quartinary', 'senary']
-let renderedSegmentColors: string[] = []
+const renderedSegmentColors: Ref<string[]> = ref([])
 let colorIndex = 0
 let timer = 100
 
-onBeforeMount(() => {
+const determineColors = () => {
   props.segments.map(() => {
     // if we reach the maximum amount of colors, begin again with the colors array.
-    if (colorIndex > (segmentColors.length - 1)) {
+    if (colorIndex > segmentColors.length - 1) {
       colorIndex = 0
     }
 
-    renderedSegmentColors.push(segmentColors[colorIndex])
+    renderedSegmentColors.value.push(segmentColors[colorIndex])
     colorIndex++
   })
+}
+
+onUpdated(() => {
+  determineColors()
+})
+
+onBeforeMount(() => {
+  determineColors()
 })
 
 /**
  * When the component is mounted it is hidden by default.
  * By adding a interval and increasing it gradually, each segment gets show one by one
-*/
+ */
 onMounted(() => {
   const segments = document.querySelectorAll('.segment')
 

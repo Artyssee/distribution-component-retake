@@ -38,9 +38,21 @@ const returnToOverview = () => {
   router.push({ name: 'home' })
 }
 
-// const emit = defineEmits(['restockProducts'])
+const emit = defineEmits(['restockProducts'])
 
 const setRelevantInput = (e: Event) => {
+  emit('restockProducts')
+
+  currentProduct.value = props.inventory.filter(
+    (product) => product.id === parseInt(props.productId)
+  )[0]
+  currentProduct.value.segments = currentProduct.value.segments.filter(
+    (segment: ISegment) => segment.quantity > 0
+  )
+  activeSegment.value = currentProduct.value.segments.filter(
+    (segment: ISegment) => segment.quantity > 0
+  )[0]
+
   const value = parseInt((e.target as HTMLInputElement).value)
   const remainder = ref(0)
 
@@ -53,18 +65,11 @@ const setRelevantInput = (e: Event) => {
     inShoppingCart.value = 0
   }
 
-  // TODO: Restock is not working probably. Why I don't know yet
-  // emit('restockProducts')
-  console.log('props.inventory', props.inventory);
-  // currentProduct.value = props.inventory.filter((product) => product.id === parseInt(props.productId))[0]
-  // currentProduct.value.segments = currentProduct.value.segments.filter((segment: ISegment) => segment.quantity > 0);
-  // activeSegment.value = currentProduct.value.segments.filter((segment: ISegment) => segment.quantity > 0)[0];
-
   activeSegment.value.quantity -= inShoppingCart.value
 
   /**
    * Check if there is a remainder from the quantity minus the shoppincart value.
-   * If there is, convert it to a positive number and keep looping over segments until the remainder minus the quantity does not equal or go below zero. 
+   * If there is, convert it to a positive number and keep looping over segments until the remainder minus the quantity does not equal or go below zero.
    */
   if (activeSegment.value.quantity <= 0) {
     remainder.value = Math.abs(activeSegment.value.quantity)
@@ -113,5 +118,4 @@ const setRelevantInput = (e: Event) => {
   <p v-else>We don't have anything in stock anymore</p>
 </template>
 
-<style lang="scss" scoped>
-</style>
+<style lang="scss" scoped></style>
