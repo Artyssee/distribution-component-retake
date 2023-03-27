@@ -59,6 +59,9 @@ onMounted(() => {
 </script>
 
 <template>
+  <div class="segmentPopupContainer">
+    <!-- TODO: Make this work with props -->
+  </div>
   <ul class="segmentsList">
     <SegmentView
       v-for="(segment, index) in props.segments"
@@ -72,12 +75,17 @@ onMounted(() => {
 </template>
 
 <style lang="scss" scoped>
+.segmentPopupContainer {
+  min-height: 100px;
+}
+
 .segmentsList {
   display: grid;
   grid-template-columns: 1fr;
   grid-template-rows: 1fr;
-  gap: 20px;
+  gap: 16px;
   padding: 0;
+  position: relative;
 
   @include breakpoint('md') {
     grid-template-columns: 1fr 1fr;

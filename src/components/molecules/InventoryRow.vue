@@ -30,6 +30,7 @@ const props = defineProps<Props>()
 
   @include breakpoint('lg') {
     grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: 1fr 1fr;
   }
 }
 </style>

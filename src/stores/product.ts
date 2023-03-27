@@ -6,9 +6,7 @@ export const useProductStore = defineStore('productStore', () => {
   const importedProductData = productData
   const products = ref(importedProductData)
 
-  function restockProducts() {
-    products.value = productData
-  }
+  // TODO: Fix error json input or move actions for the products here
 
-  return { products, restockProducts }
+  return { products }
 })

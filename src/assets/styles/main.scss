@@ -7,10 +7,6 @@
 // Fonts
 @import './fonts.scss';
 
-html {
-  background-color: $primary-white;
-}
-
 h1,
 h2,
 h3,
@@ -19,4 +15,15 @@ h5,
 h6,
 p {
   color: $primary-black;
+}
+
+// Fade transition re-usable
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.5s ease-in-out;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
 }
