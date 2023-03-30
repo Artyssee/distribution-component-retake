@@ -2,51 +2,105 @@
 import type { ISegment } from '@/scripts/interfaces'
 import { faCalendarAlt } from '@fortawesome/free-solid-svg-icons'
 import type { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+import { ref } from 'vue';
 
 export interface Props {
-  segment: ISegment
+  segment: ISegment,
+  segmentColor?: string;
 }
 
 const props = defineProps<Props>()
+
+const showModal = ref(false);
 </script>
 
 <template>
   <Transition name="fade">
-    <li v-if="props.segment.quantity > 0" class="inventoryStatusListItem">
-      <div class="inventoryStatusDateContainer">
-        <font-awesome-icon class="inventorySystemButton__icon" :icon="faCalendarAlt" />
-        <p class="inventoryStatusDateContainer__text">
-          <strong>On {{ props.segment.date }}</strong>
-        </p>
-      </div>
-
-      <p>Products in stock: {{ props.segment.quantity >= 0 ? props.segment.quantity : 0 }}</p>
+    <li v-show="props.segment.quantity > 0" @mouseover="() => showModal = true" @mouseleave="() => showModal = false" class="inventoryStatusListItem" :class="`inventoryStatusListItem--${props.segmentColor ? props.segmentColor : ''}`">
+        <article class="inventoryStatusListArticle">
+          <Transition name="fade">
+            <header v-if="showModal" class="inventoryStatusListHeader">
+              <font-awesome-icon class="inventoryStatusListHeader__icon" :icon="faCalendarAlt" />
+              <h2 class="inventoryStatusListHeader__heading">On {{ props.segment.date }}</h2>
+            </header>
+          </Transition>
+          <p class="inventoryStatusListHeader__text">{{ props.segment.quantity }} Shoes can be delivered</p>
+        </article>
     </li>
   </Transition>
 </template>
 
 <style lang="scss" scoped>
+// Segment colors
+$primary-segment: #a5d49e;
+$secondary-segment: #9cb37f;
+$tertiary-segment: #522a28;
+$quaternary-segment: #c73e1c;
+$senary-segment: #c59749;
+
 .inventoryStatusListItem {
-  background-color: $secondary-white;
+  display: flex;
+  background-color: $primary-white;
   border-radius: 8px;
   border: 1px solid $mint-green;
   padding: 1.2rem;
+  position: relative;
+  transition: 0.5s ease-in-out;
 
   &:hover {
-    border-color: $primary-black;
+    cursor: pointer;
+  }
+
+  &--primary {
+    background-color: $primary-segment;
+  }
+  &--secondary {
+    background-color: $secondary-segment;
+  }
+  &--tertiary {
+    color: $primary-white;
+    background-color: $tertiary-segment;
+
+    .inventoryStatusListHeader__icon,
+    .inventoryStatusListHeader__heading,
+    .inventoryStatusListHeader__text {
+      color: $primary-white;
+    }
+  }
+
+  &--quartinary {
+    background-color: $quaternary-segment;
+    color: $primary-white;
+    .inventoryStatusListHeader__icon,
+    .inventoryStatusListHeader__heading,
+    .inventoryStatusListHeader__text {
+      color: $primary-white;
+    }
+  }
+
+  &--senary {
+    background-color: $senary-segment;
   }
 }
 
-.inventoryStatusDateContainer {
+.inventoryStatusListArticle {
+  display: flex;
+  flex-direction: row;
+}
+
+.inventoryStatusListHeader {
   display: flex;
   flex-direction: row;
   align-items: center;
-  justify-content: flex-start;
+  margin: 0;
+  padding: 0;
 
-  &__text {
-    margin-top: 0;
-    margin-bottom: -4px;
-    padding-left: 0.8rem;
+  &__heading {
+    margin: 0 0.8rem -4px 0;
+    padding: 0 0 0 0.8rem;
   }
+}
+
+.inventoryStatusModal {
 }
 </style>

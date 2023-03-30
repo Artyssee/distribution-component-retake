@@ -41,7 +41,7 @@ const setShowModal = () => {
       v-on:mouseleave="setShowModal"
       :class="`segment--${props.segmentColor}`"
     >
-      <p class="segment__body">{{ props.segment.quantity }} units left in stock</p>
+      <p class="segment__body">{{ props.segment.quantity }} units  {{ props.segment.date }}</p>
     </li>
   </Transition>
 </template>

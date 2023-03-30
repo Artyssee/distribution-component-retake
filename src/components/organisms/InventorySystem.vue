@@ -2,6 +2,7 @@
 export interface Props {
   productId: string
   inventory: IProduct[]
+  originalInventory: IProduct[]
 }
 
 import router from '@/router'
@@ -9,36 +10,36 @@ import type { IProduct, ISegment } from '@/scripts/interfaces'
 import {
   faCalendarAlt,
   faCircleArrowLeft,
-  faShoppingBasket
 } from '@fortawesome/free-solid-svg-icons'
 import type { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import { ref, type Ref } from 'vue'
+import { onMounted, ref, type Ref } from 'vue'
+import InventoryRow from '../molecules/InventoryRow.vue'
 // import InventoryRow from '../molecules/InventoryRow.vue'
 import SegmentRow from '../molecules/SegmentRow.vue'
 
 const inShoppingCart = ref(0)
+const isCurrentSegment = ref(true);
+const passedSegmentsArray: Ref<ISegment[]> = ref([]);
 const props = defineProps<Props>()
 
 /**
  * Setting the current product by filtering out the incorrect ones.
  * Afterwards the segments are filtered to only display ones with quantity
  */
+const originalCurrentProduct = ref(props.originalInventory.filter((product) => product.id === parseInt(props.productId))[0]);
+
 const currentProduct = ref(
   props.inventory.filter((product) => product.id === parseInt(props.productId))[0]
 )
 currentProduct.value.segments = currentProduct.value.segments.filter(
   (segment: ISegment) => segment.quantity > 0
 )
-
 /**
  * Setting the currently active product segment from which the quantity can be extracted
  */
 const activeSegment: Ref<ISegment> = ref(
   currentProduct.value.segments.filter((segment: ISegment) => segment.quantity > 0)[0]
 )
-
-// Variable for deciding if there is a segment with a quantity left within it, otherwise show that the product is out of stock
-const hasRemainingSegments = ref(true)
 
 const returnToOverview = () => {
   router.push({ name: 'home' })
@@ -47,6 +48,7 @@ const returnToOverview = () => {
 const emit = defineEmits(['restockProducts'])
 
 const setRelevantInput = (e: Event) => {
+  passedSegmentsArray.value = [];
   emit('restockProducts')
 
   currentProduct.value = props.inventory.filter(
@@ -58,9 +60,12 @@ const setRelevantInput = (e: Event) => {
   activeSegment.value = currentProduct.value.segments.filter(
     (segment: ISegment) => segment.quantity > 0
   )[0]
+  isCurrentSegment.value = true;
 
   const value = parseInt((e.target as HTMLInputElement).value)
-  const remainder = ref(0)
+  const remainder = ref(0);
+
+  let originalActivesegment = originalCurrentProduct.value.segments.filter((segment: ISegment) => segment.date === activeSegment.value.date)[0];
 
   // Arrange the value of shoppingcart to be always number and never as String
   if (value) {
@@ -73,40 +78,46 @@ const setRelevantInput = (e: Event) => {
 
   activeSegment.value.quantity -= inShoppingCart.value
 
-  /**
-   * Check if there is a remainder from the quantity minus the shoppincart value.
-   * If there is, convert it to a positive number and keep looping over segments until the remainder minus the quantity does not equal or go below zero.
-   */
-  if (activeSegment.value.quantity <= 0) {
-    remainder.value = Math.abs(activeSegment.value.quantity)
+  while (activeSegment.value.quantity <= 0) {
+    remainder.value = Math.abs(activeSegment.value.quantity);
+    activeSegment.value.quantity = 0;
+    
+    passedSegmentsArray.value.push({
+      quantity: originalActivesegment.quantity,
+      date: originalActivesegment.date
+    })
 
-    while (
-      remainder.value > 0 &&
-      currentProduct.value.segments.filter((segment: ISegment) => segment.quantity > 0)[0]
-    ) {
-      activeSegment.value = currentProduct.value.segments.filter(
-        (segment: ISegment) => segment.quantity > 0
-      )[0]
+    activeSegment.value = currentProduct.value.segments.filter((segment: ISegment) => segment.quantity > 0)[0];
+    originalActivesegment = originalCurrentProduct.value.segments.filter((segment: ISegment) => segment.date === activeSegment.value.date)[0];
 
-      while (activeSegment.value.quantity - remainder.value <= 0) {
-        remainder.value -= activeSegment.value.quantity
-        activeSegment.value.quantity = 0
-        activeSegment.value = currentProduct.value.segments.filter(
-          (segment: ISegment) => segment.quantity > 0
-        )[0]
-      }
-
-      activeSegment.value.quantity -= remainder.value
-      remainder.value = 0
+    if (isCurrentSegment.value === true) {
+      isCurrentSegment.value = false;
     }
 
-    if (
-      currentProduct.value.segments.filter((segment: ISegment) => segment.quantity > 0).length === 0
-    ) {
-      hasRemainingSegments.value = false
-    }
+    activeSegment.value.quantity -= remainder.value;
+  }
+
+  passedSegmentsArray.value.push({
+    quantity: remainder.value,
+    date: activeSegment.value.date
+  })
+
+  activeSegment.value.quantity -= remainder.value;
+
+  if (inShoppingCart.value === 0) {
+    passedSegmentsArray.value.push({
+      quantity: originalCurrentProduct.value.segments[0].quantity,
+      date: originalCurrentProduct.value.segments[0].date
+    })
   }
 }
+
+onMounted(() => {
+  passedSegmentsArray.value.push({
+    quantity: originalCurrentProduct.value.segments[0].quantity,
+    date: originalCurrentProduct.value.segments[0].date
+  })
+});
 </script>
 
 <template>
@@ -117,12 +128,15 @@ const setRelevantInput = (e: Event) => {
       </button>
       <h1 class="inventorySystemHeader__heading">Inventory system</h1>
     </div>
-    <!-- <InventoryRow :segments="currentProduct.segments" /> -->
     <div class="inventoryInput">
       <div class="inventoryInputContainer">
         <div class="InventoryInputContainerHeading">
           <font-awesome-icon class="inventorySystemButton__icon" :icon="faCalendarAlt" />
-          <p class="inventorySystem__text">Order can be completed on {{ activeSegment.date }}</p>
+          <p v-if="!isCurrentSegment && inShoppingCart > 0" class="inventorySystem__text">Your order can be completed on {{ activeSegment.date }}</p>
+          <p v-else-if="isCurrentSegment && inShoppingCart > 0" class="inventorySystem__text">
+              Your order can be completed Right now!
+          </p>
+          <p v-else class="inventorySystem__text">Input your quantity to see the delivery time!</p>
         </div>
         <div class="">
           <input
@@ -134,23 +148,8 @@ const setRelevantInput = (e: Event) => {
           />
         </div>
       </div>
-      <Transition name="fade">
-        <div v-if="inShoppingCart > 0" class="inventoryContainer">
-          <font-awesome-icon class="inventorySystemButton__icon" :icon="faShoppingBasket" />
-          <p class="inventoryInput__inShoppingCart">
-            Currently in shoppingcart: {{ inShoppingCart }}
-          </p>
-        </div>
-      </Transition>
+      <InventoryRow :segments="passedSegmentsArray" />
     </div>
-    <SegmentRow
-      v-if="hasRemainingSegments"
-      :inShoppingCart="inShoppingCart"
-      :segments="currentProduct.segments"
-    />
-    <p class="inventorySystem__text inventorySystem__text--large" v-else>
-      We don't have anything in stock anymore
-    </p>
   </div>
 </template>
 
@@ -228,23 +227,17 @@ const setRelevantInput = (e: Event) => {
 }
 .inventoryInput {
   display: flex;
-  flex-direction: row;
-  flex-wrap: wrap;
-  justify-content: flex-start;
+  flex-direction: column;
 }
 
 .inventoryInputContainer {
-  background-color: $primary-white;
-  padding: 0.8rem 1.2rem;
-  border: 1px solid $mint-green;
-  border-radius: 8px;
-
-  @include breakpoint('md') {
-    margin-right: 1.2rem;
+  .inventorySystem__text {
+    margin: 0 1.2rem 0 0;
   }
 }
 .InventoryInputContainerHeading {
   display: flex;
   align-items: center;
+  margin-bottom: 1.2rem;
 }
 </style>
