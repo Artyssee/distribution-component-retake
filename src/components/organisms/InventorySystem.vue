@@ -12,7 +12,7 @@ import {
   faCircleArrowLeft,
 } from '@fortawesome/free-solid-svg-icons'
 import type { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import { onMounted, ref, type Ref } from 'vue'
+import { ref, type Ref } from 'vue'
 import InventoryRow from '../molecules/InventoryRow.vue'
 // import InventoryRow from '../molecules/InventoryRow.vue'
 import SegmentRow from '../molecules/SegmentRow.vue'
@@ -80,12 +80,6 @@ const setDeliveryQuantities = () => {
 
 
   activeSegment.value.quantity -= remainder.value;
-
-  if (inShoppingCart.value === 0 || isCurrentSegment.value) {
-    passedSegmentsArray.value = [];
-
-    updatePassedSegments(originalCurrentProduct.value.segments[0].quantity, originalCurrentProduct.value.segments[0].date);
-  }
 }
 
 const returnToOverview = () => {
@@ -125,13 +119,6 @@ const setRelevantInput = (e: Event) => {
 
   setDeliveryQuantities();
 }
-
-onMounted(() => {
-  passedSegmentsArray.value.push({
-    quantity: originalCurrentProduct.value.segments[0].quantity,
-    date: originalCurrentProduct.value.segments[0].date
-  })
-});
 </script>
 
 <template>
@@ -153,9 +140,10 @@ onMounted(() => {
           </p>
           <p v-else class="inventorySystem__text">Input your quantity to see the delivery time!</p>
         </div>
-        <div class="">
+        <div class="InventoryInputContainerWrapper">
+          <p class="InventoryInputContainerWrapper__text">Quantity:</p>
           <input
-            class="inventorySystem__input"
+            class="InventoryInputContainerWrapper__input"
             type="number"
             min="0"
             :value="inShoppingCart"
@@ -254,5 +242,23 @@ onMounted(() => {
   display: flex;
   align-items: center;
   margin-bottom: 1.2rem;
+}
+
+.InventoryInputContainerWrapper {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+
+  &__text {
+    margin-right: 0.8rem;
+  }
+
+  &__input {
+    background-color: $primary-white;
+    outline: none;
+    border: 1px solid $primary-black;
+    border-radius: 4px;
+    padding: 0.8rem;
+  }
 }
 </style>
