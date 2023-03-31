@@ -14,8 +14,6 @@ import {
 import type { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { ref, type Ref } from 'vue'
 import InventoryRow from '../molecules/InventoryRow.vue'
-// import InventoryRow from '../molecules/InventoryRow.vue'
-import SegmentRow from '../molecules/SegmentRow.vue'
 
 const inShoppingCart = ref(0)
 const isCurrentSegment = ref(true);
