@@ -18,7 +18,7 @@ const showModal = ref(false);
   <Transition name="fade">
     <li v-show="props.segment.quantity > 0" @mouseover="() => showModal = true" @mouseleave="() => showModal = false" class="inventoryStatusListItem" :class="`inventoryStatusListItem--${props.segmentColor ? props.segmentColor : ''}`">
         <article class="inventoryStatusListArticle">
-          <Transition name="fade">
+          <Transition name="popup">
             <header v-show="showModal" class="inventoryStatusListHeader">
               <font-awesome-icon class="inventoryStatusListHeader__icon" :icon="faCalendarAlt" />
               <h2 class="inventoryStatusListHeader__heading">On {{ props.segment.date }}</h2>
@@ -45,6 +45,7 @@ $senary-segment: #c59749;
   border: 1px solid $mint-green;
   padding: 1.2rem;
   position: relative;
+  transition: 0.5s ease-in-out;
 
   &:hover {
     cursor: pointer;
@@ -80,6 +81,10 @@ $senary-segment: #c59749;
   &--senary {
     background-color: $senary-segment;
   }
+
+  &--hidden {
+    opacity: 0;
+  }
 }
 
 .inventoryStatusListArticle {
@@ -98,5 +103,25 @@ $senary-segment: #c59749;
     margin: 0 0.8rem -4px 0;
     padding: 0 0 0 0.8rem;
   }
+
+  &__text {
+    transition: 0.5s ease-in-out;
+  }
+}
+
+// Fade transition re-usable
+.popup-enter-active,
+.popup-leave-active {
+  transition: 0.5s ease-in-out;
+  transform: translateX(0);
+}
+
+.popup-enter-from {
+  opacity: 0;
+  transform: translateX(-25px);
+}
+.popup-leave-to {
+  opacity: 0;
+  transform: translateX(-25px);
 }
 </style>

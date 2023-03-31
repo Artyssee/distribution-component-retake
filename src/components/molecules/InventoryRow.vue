@@ -16,6 +16,7 @@ const props = defineProps<Props>()
 const segmentColors = ['primary', 'secondary', 'tertiary', 'quartinary', 'senary']
 const renderedSegmentColors: Ref<string[]> = ref([])
 let colorIndex = 0;
+let timer = 0
 
 onUpdated(() => {
   props.segments.map(() => {
@@ -30,6 +31,19 @@ onUpdated(() => {
       colorIndex++
     }
   })
+
+  if (props.segments.length) {
+    const items = document.querySelectorAll('.inventoryStatusListItem');
+
+    [...items].map((item) => {
+      item.classList.add('inventoryStatusListItem--hidden');
+      setTimeout(() => {
+        item.classList.remove('inventoryStatusListItem--hidden');
+      }, timer)
+    })
+
+    timer += 50
+  }
 })
 </script>
 
