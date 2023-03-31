@@ -20,6 +20,7 @@ const restockProducts = () => {
 <template>
   <main>
     <inventorySystem
+      :original-inventory="inventory"
       :inventory="currentInventory"
       :product-id="props.id"
       @restock-products="restockProducts"
