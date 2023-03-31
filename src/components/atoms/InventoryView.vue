@@ -19,7 +19,7 @@ const showModal = ref(false);
     <li v-show="props.segment.quantity > 0" @mouseover="() => showModal = true" @mouseleave="() => showModal = false" class="inventoryStatusListItem" :class="`inventoryStatusListItem--${props.segmentColor ? props.segmentColor : ''}`">
         <article class="inventoryStatusListArticle">
           <Transition name="fade">
-            <header v-if="showModal" class="inventoryStatusListHeader">
+            <header v-show="showModal" class="inventoryStatusListHeader">
               <font-awesome-icon class="inventoryStatusListHeader__icon" :icon="faCalendarAlt" />
               <h2 class="inventoryStatusListHeader__heading">On {{ props.segment.date }}</h2>
             </header>
@@ -45,7 +45,6 @@ $senary-segment: #c59749;
   border: 1px solid $mint-green;
   padding: 1.2rem;
   position: relative;
-  transition: 0.5s ease-in-out;
 
   &:hover {
     cursor: pointer;
@@ -99,8 +98,5 @@ $senary-segment: #c59749;
     margin: 0 0.8rem -4px 0;
     padding: 0 0 0 0.8rem;
   }
-}
-
-.inventoryStatusModal {
 }
 </style>

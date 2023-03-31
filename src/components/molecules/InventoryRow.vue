@@ -13,20 +13,22 @@ const props = defineProps<Props>()
  * Variables for generating colored sections.
  * The onBeforeMount function will loop over the colors infinitely
  **/
- const segmentColors = ['primary', 'secondary', 'tertiary', 'quartinary', 'senary']
+const segmentColors = ['primary', 'secondary', 'tertiary', 'quartinary', 'senary']
 const renderedSegmentColors: Ref<string[]> = ref([])
 let colorIndex = 0;
 
 onUpdated(() => {
   props.segments.map(() => {
+    if(!(renderedSegmentColors.value.length > props.segments.length)) {
 
-    // if we reach the maximum amount of colors, begin again with the colors array.
-    if (colorIndex > segmentColors.length - 1) {
-      colorIndex = 0
+      // if we reach the maximum amount of colors, begin again with the colors array.
+      if (colorIndex > segmentColors.length - 1) {
+        colorIndex = 0
+      }
+
+      renderedSegmentColors.value.push(segmentColors[colorIndex])
+      colorIndex++
     }
-
-    renderedSegmentColors.value.push(segmentColors[colorIndex])
-    colorIndex++
   })
 })
 </script>

@@ -19,6 +19,7 @@ import SegmentRow from '../molecules/SegmentRow.vue'
 
 const inShoppingCart = ref(0)
 const isCurrentSegment = ref(true);
+const exceededMaxAmount = ref(false);
 const passedSegmentsArray: Ref<ISegment[]> = ref([]);
 const props = defineProps<Props>()
 
@@ -41,6 +42,52 @@ const activeSegment: Ref<ISegment> = ref(
   currentProduct.value.segments.filter((segment: ISegment) => segment.quantity > 0)[0]
 )
 
+const updatePassedSegments = (quantity: number, date: string) => {
+  passedSegmentsArray.value.push({
+      quantity: quantity,
+      date: date
+  })
+}
+
+const setDeliveryQuantities = () => {
+  const remainder = ref(0);
+  let originalActivesegment = originalCurrentProduct.value.segments.filter((segment: ISegment) => segment.date === activeSegment.value.date)[0];
+
+  while (activeSegment.value.quantity <= 0) {
+      remainder.value = Math.abs(activeSegment.value.quantity);
+      activeSegment.value.quantity = 0;
+
+      updatePassedSegments(originalActivesegment.quantity, originalActivesegment.date);
+
+      if (currentProduct.value.segments.filter((segment: ISegment) => segment.quantity > 0)[0]) {
+        activeSegment.value = currentProduct.value.segments.filter((segment: ISegment) => segment.quantity > 0)[0];
+        originalActivesegment = originalCurrentProduct.value.segments.filter((segment: ISegment) => segment.date === activeSegment.value.date)[0];
+
+        if (isCurrentSegment.value === true) {
+          isCurrentSegment.value = false;
+        }
+
+        activeSegment.value.quantity -= remainder.value;
+      } else {
+        activeSegment.value.quantity = originalActivesegment.quantity;
+        exceededMaxAmount.value = true;
+      }
+  }
+
+  if(!exceededMaxAmount.value) {
+    updatePassedSegments(remainder.value, activeSegment.value.date);
+  }
+
+
+  activeSegment.value.quantity -= remainder.value;
+
+  if (inShoppingCart.value === 0 || isCurrentSegment.value) {
+    passedSegmentsArray.value = [];
+
+    updatePassedSegments(originalCurrentProduct.value.segments[0].quantity, originalCurrentProduct.value.segments[0].date);
+  }
+}
+
 const returnToOverview = () => {
   router.push({ name: 'home' })
 }
@@ -49,6 +96,8 @@ const emit = defineEmits(['restockProducts'])
 
 const setRelevantInput = (e: Event) => {
   passedSegmentsArray.value = [];
+  const value = parseInt((e.target as HTMLInputElement).value)
+
   emit('restockProducts')
 
   currentProduct.value = props.inventory.filter(
@@ -61,11 +110,7 @@ const setRelevantInput = (e: Event) => {
     (segment: ISegment) => segment.quantity > 0
   )[0]
   isCurrentSegment.value = true;
-
-  const value = parseInt((e.target as HTMLInputElement).value)
-  const remainder = ref(0);
-
-  let originalActivesegment = originalCurrentProduct.value.segments.filter((segment: ISegment) => segment.date === activeSegment.value.date)[0];
+  exceededMaxAmount.value = false;
 
   // Arrange the value of shoppingcart to be always number and never as String
   if (value) {
@@ -78,38 +123,7 @@ const setRelevantInput = (e: Event) => {
 
   activeSegment.value.quantity -= inShoppingCart.value
 
-  while (activeSegment.value.quantity <= 0) {
-    remainder.value = Math.abs(activeSegment.value.quantity);
-    activeSegment.value.quantity = 0;
-    
-    passedSegmentsArray.value.push({
-      quantity: originalActivesegment.quantity,
-      date: originalActivesegment.date
-    })
-
-    activeSegment.value = currentProduct.value.segments.filter((segment: ISegment) => segment.quantity > 0)[0];
-    originalActivesegment = originalCurrentProduct.value.segments.filter((segment: ISegment) => segment.date === activeSegment.value.date)[0];
-
-    if (isCurrentSegment.value === true) {
-      isCurrentSegment.value = false;
-    }
-
-    activeSegment.value.quantity -= remainder.value;
-  }
-
-  passedSegmentsArray.value.push({
-    quantity: remainder.value,
-    date: activeSegment.value.date
-  })
-
-  activeSegment.value.quantity -= remainder.value;
-
-  if (inShoppingCart.value === 0) {
-    passedSegmentsArray.value.push({
-      quantity: originalCurrentProduct.value.segments[0].quantity,
-      date: originalCurrentProduct.value.segments[0].date
-    })
-  }
+  setDeliveryQuantities();
 }
 
 onMounted(() => {
@@ -132,7 +146,8 @@ onMounted(() => {
       <div class="inventoryInputContainer">
         <div class="InventoryInputContainerHeading">
           <font-awesome-icon class="inventorySystemButton__icon" :icon="faCalendarAlt" />
-          <p v-if="!isCurrentSegment && inShoppingCart > 0" class="inventorySystem__text">Your order can be completed on {{ activeSegment.date }}</p>
+          <p v-if="exceededMaxAmount">You exeeded the maximum stock. Other date may apply</p>
+          <p v-else-if="!isCurrentSegment && inShoppingCart > 0" class="inventorySystem__text">Your order can be completed on {{ activeSegment.date }}</p>
           <p v-else-if="isCurrentSegment && inShoppingCart > 0" class="inventorySystem__text">
               Your order can be completed Right now!
           </p>
@@ -148,7 +163,7 @@ onMounted(() => {
           />
         </div>
       </div>
-      <InventoryRow :segments="passedSegmentsArray" />
+      <InventoryRow v-show="!exceededMaxAmount" :segments="passedSegmentsArray" />
     </div>
   </div>
 </template>
